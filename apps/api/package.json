@@ -1,11 +1,12 @@
 {
   "name": "@app/api",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
-    "build": "node -e \"console.log('api build placeholder')\"",
-    "dev": "node -e \"console.log('api dev placeholder')\"",
-    "test": "node -e \"console.log('api test placeholder')\"",
-    "lint": "node -e \"console.log('api lint placeholder')\""
+    "build": "echo \"[@app/api] build placeholder\"; node -v",
+    "dev": "echo \"[@app/api] dev placeholder\"; node -v",
+    "test": "echo \"[@app/api] test placeholder\"; node -v",
+    "lint": "echo \"[@app/api] lint placeholder\"; node -v"
   }
 }

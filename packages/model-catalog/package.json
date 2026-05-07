@@ -1,11 +1,12 @@
 {
   "name": "@app/model-catalog",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
-    "build": "node -e \"console.log('model-catalog build placeholder')\"",
-    "dev": "node -e \"console.log('model-catalog dev placeholder')\"",
-    "test": "node -e \"console.log('model-catalog test placeholder')\"",
-    "lint": "node -e \"console.log('model-catalog lint placeholder')\""
+    "build": "echo \"[@app/model-catalog] build placeholder\"; node -v",
+    "dev": "echo \"[@app/model-catalog] dev placeholder\"; node -v",
+    "test": "echo \"[@app/model-catalog] test placeholder\"; node -v",
+    "lint": "echo \"[@app/model-catalog] lint placeholder\"; node -v"
   }
 }
