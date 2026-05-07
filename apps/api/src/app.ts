@@ -2,15 +2,16 @@
 
 import { authRoutes } from "./modules/auth/routes.js";
 import { InMemoryStore } from "./modules/common/store.js";
+import { concatRoutes } from "./modules/concat/routes.js";
 import { creditsRoutes } from "./modules/credits/routes.js";
 import { membershipRoutes } from "./modules/membership/routes.js";
+import { observabilityRoutes } from "./modules/observability/routes.js";
 import { renderJobRoutes } from "./modules/render-jobs/routes.js";
 import { workflowRoutes } from "./modules/workflow/routes.js";
 import { WorkflowService } from "./modules/workflow/service.js";
-import { concatRoutes } from "./modules/concat/routes.js";
 
 export function buildApp(): FastifyInstance {
-  const app = Fastify({ logger: false });
+  const app = Fastify({ logger: true });
   app.decorate("store", new InMemoryStore());
   app.decorate("workflowService", new WorkflowService());
 
@@ -22,6 +23,7 @@ export function buildApp(): FastifyInstance {
   app.register(workflowRoutes);
   app.register(renderJobRoutes);
   app.register(concatRoutes);
+  app.register(observabilityRoutes);
 
   return app;
 }

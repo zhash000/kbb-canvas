@@ -1,5 +1,6 @@
 ﻿import type { Job } from "bullmq";
 
+import { logProviderCall, createTraceId } from "../observability.js";
 import { nextStatus, type StepStatus } from "../state-machine.js";
 import type { RenderStepJob } from "../queues.js";
 
@@ -22,14 +23,28 @@ export class InMemoryStepProgressStore implements StepProgressStore {
 
 export function createRenderStepProcessor(store: StepProgressStore) {
   return async (job: Job<RenderStepJob>) => {
+    const startedAt = Date.now();
+    const traceId = createTraceId();
+
     const before = store.getStatus(job.data.stepId);
     const running = nextStatus(before, "start");
     store.setStatus(job.data.stepId, running);
 
-    // Placeholder processor for Task 6; provider calls are added in Task 7.
+    // Placeholder processor for Task 6/7; provider integration plugged in later.
     const succeeded = nextStatus(running, "succeed");
     store.setStatus(job.data.stepId, succeeded);
 
-    return { stepId: job.data.stepId, status: succeeded };
+    logProviderCall({
+      traceId,
+      jobId: job.data.jobId,
+      stepId: job.data.stepId,
+      provider: "internal",
+      modelId: undefined,
+      latencyMs: Date.now() - startedAt,
+      creditsDelta: 0,
+      status: "ok",
+    });
+
+    return { stepId: job.data.stepId, status: succeeded, traceId };
   };
 }
