@@ -7,6 +7,7 @@ import { membershipRoutes } from "./modules/membership/routes.js";
 import { renderJobRoutes } from "./modules/render-jobs/routes.js";
 import { workflowRoutes } from "./modules/workflow/routes.js";
 import { WorkflowService } from "./modules/workflow/service.js";
+import { concatRoutes } from "./modules/concat/routes.js";
 
 export function buildApp(): FastifyInstance {
   const app = Fastify({ logger: false });
@@ -20,6 +21,7 @@ export function buildApp(): FastifyInstance {
   app.register(membershipRoutes);
   app.register(workflowRoutes);
   app.register(renderJobRoutes);
+  app.register(concatRoutes);
 
   return app;
 }
