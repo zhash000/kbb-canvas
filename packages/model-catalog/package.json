@@ -1,12 +1,25 @@
-{
+﻿{
   "name": "@app/model-catalog",
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
   "scripts": {
-    "build": "echo \"[@app/model-catalog] build placeholder\"; node -v",
-    "dev": "echo \"[@app/model-catalog] dev placeholder\"; node -v",
-    "test": "echo \"[@app/model-catalog] test placeholder\"; node -v",
-    "lint": "echo \"[@app/model-catalog] lint placeholder\"; node -v"
+    "build": "tsc -p tsconfig.json",
+    "dev": "vitest watch",
+    "test": "vitest run",
+    "lint": "echo \"[@app/model-catalog] lint placeholder\""
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.29",
+    "typescript": "~5.7.3",
+    "vitest": "^3.2.4"
   }
 }
