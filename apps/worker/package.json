@@ -1,12 +1,20 @@
-{
+﻿{
   "name": "@app/worker",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "build": "echo \"[@app/worker] build placeholder\"; node -v",
-    "dev": "echo \"[@app/worker] dev placeholder\"; node -v",
-    "test": "echo \"[@app/worker] test placeholder\"; node -v",
-    "lint": "echo \"[@app/worker] lint placeholder\"; node -v"
+    "build": "tsc -p tsconfig.json",
+    "dev": "node --watch src/index.ts",
+    "test": "vitest run",
+    "lint": "echo \"[@app/worker] lint placeholder\""
+  },
+  "dependencies": {
+    "bullmq": "^5.61.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.29",
+    "typescript": "~5.7.3",
+    "vitest": "^3.2.4"
   }
 }
