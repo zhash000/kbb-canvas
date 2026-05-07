@@ -1,12 +1,20 @@
-{
+﻿{
   "name": "@app/api",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "build": "echo \"[@app/api] build placeholder\"; node -v",
-    "dev": "echo \"[@app/api] dev placeholder\"; node -v",
-    "test": "echo \"[@app/api] test placeholder\"; node -v",
-    "lint": "echo \"[@app/api] lint placeholder\"; node -v"
+    "build": "tsc -p tsconfig.json",
+    "dev": "node --watch src/server.ts",
+    "test": "vitest run",
+    "lint": "echo \"[@app/api] lint placeholder\""
+  },
+  "dependencies": {
+    "fastify": "^5.6.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.29",
+    "typescript": "~5.7.3",
+    "vitest": "^3.2.4"
   }
 }
