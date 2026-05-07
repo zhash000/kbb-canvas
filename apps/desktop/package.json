@@ -1,12 +1,28 @@
-{
+﻿{
   "name": "@app/desktop",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "build": "echo \"[@app/desktop] build placeholder\"; node -v",
-    "dev": "echo \"[@app/desktop] dev placeholder\"; node -v",
-    "test": "echo \"[@app/desktop] test placeholder\"; node -v",
-    "lint": "echo \"[@app/desktop] lint placeholder\"; node -v"
+    "build": "tsc -p tsconfig.json",
+    "dev": "echo \"[@app/desktop] dev placeholder\"",
+    "test": "vitest run",
+    "lint": "echo \"[@app/desktop] lint placeholder\""
+  },
+  "dependencies": {
+    "@app/model-catalog": "*",
+    "@app/shared": "*",
+    "@xyflow/react": "^12.9.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^16.3.0",
+    "@types/node": "^22.15.29",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "jsdom": "^26.1.0",
+    "typescript": "~5.7.3",
+    "vitest": "^3.2.4"
   }
 }
