@@ -1,4 +1,4 @@
-﻿import { afterAll, beforeAll, describe, expect, test } from "vitest";
+import { afterAll, beforeAll, describe, expect, test } from "vitest";
 
 import type { FastifyInstance } from "fastify";
 import { buildApp } from "../src/app.js";
@@ -67,5 +67,53 @@ describe("credits reserve-settle-release flow", () => {
     const ledger = ledgerRes.json() as { entries: Array<{ type: string; amount: number }> };
     expect(ledger.entries.some((entry) => entry.type === "reserve" && entry.amount === 300)).toBe(true);
     expect(ledger.entries.some((entry) => entry.type === "release" && entry.amount === 300)).toBe(true);
+  });
+
+  test("reserve is idempotent with Idempotency-Key", async () => {
+    const reserveA = await app.inject({
+      method: "POST",
+      url: "/credits/reserve",
+      headers: { "idempotency-key": "reserve-k1" },
+      payload: { userId, amount: 120, refJobId: "job-idem" },
+    });
+    expect(reserveA.statusCode).toBe(200);
+
+    const reserveB = await app.inject({
+      method: "POST",
+      url: "/credits/reserve",
+      headers: { "idempotency-key": "reserve-k1" },
+      payload: { userId, amount: 120, refJobId: "job-idem" },
+    });
+    expect(reserveB.statusCode).toBe(200);
+
+    const first = reserveA.json() as { id: string };
+    const second = reserveB.json() as { id: string };
+    expect(second.id).toBe(first.id);
+
+    const balanceRes = await app.inject({
+      method: "GET",
+      url: `/credits/balance?userId=${userId}`,
+    });
+    expect(balanceRes.statusCode).toBe(200);
+    expect(balanceRes.json()).toMatchObject({ available: 880, reserved: 120, total: 1000 });
+  });
+
+  test("reserve rejects same idempotency key with different payload", async () => {
+    const first = await app.inject({
+      method: "POST",
+      url: "/credits/reserve",
+      headers: { "idempotency-key": "reserve-conflict-k1" },
+      payload: { userId, amount: 50, refJobId: "job-conflict-a" },
+    });
+    expect(first.statusCode).toBe(200);
+
+    const second = await app.inject({
+      method: "POST",
+      url: "/credits/reserve",
+      headers: { "idempotency-key": "reserve-conflict-k1" },
+      payload: { userId, amount: 60, refJobId: "job-conflict-b" },
+    });
+    expect(second.statusCode).toBe(409);
+    expect(second.json()).toMatchObject({ message: "idempotency key reused with different payload" });
   });
 });

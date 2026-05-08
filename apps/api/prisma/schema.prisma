@@ -1,4 +1,4 @@
-﻿generator client {
+generator client {
   provider = "prisma-client-js"
 }
 
@@ -13,6 +13,7 @@ model User {
   password    String
   memberships Membership[]
   ledgers     CreditLedger[]
+  reservations CreditReservation[]
   createdAt   DateTime        @default(now())
 }
 
@@ -34,4 +35,25 @@ model CreditLedger {
   refJobId      String?
   createdAt     DateTime @default(now())
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model CreditReservation {
+  id        String   @id @default(cuid())
+  userId    String
+  amount    Int
+  refJobId  String?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model IdempotencyRecord {
+  id           String   @id @default(cuid())
+  scope        String
+  userId       String
+  key          String
+  requestHash  String
+  responseJson Json
+  createdAt    DateTime @default(now())
+
+  @@unique([scope, userId, key])
 }

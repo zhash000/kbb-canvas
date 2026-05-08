@@ -1,7 +1,7 @@
 ﻿import Fastify, { type FastifyInstance } from "fastify";
 
 import { authRoutes } from "./modules/auth/routes.js";
-import { InMemoryStore } from "./modules/common/store.js";
+import { createStore } from "./modules/common/store-factory.js";
 import { concatRoutes } from "./modules/concat/routes.js";
 import { creditsRoutes } from "./modules/credits/routes.js";
 import { membershipRoutes } from "./modules/membership/routes.js";
@@ -12,7 +12,7 @@ import { WorkflowService } from "./modules/workflow/service.js";
 
 export function buildApp(): FastifyInstance {
   const app = Fastify({ logger: true });
-  app.decorate("store", new InMemoryStore());
+  app.decorate("store", createStore());
   app.decorate("workflowService", new WorkflowService());
 
   app.get("/health", async () => ({ ok: true }));

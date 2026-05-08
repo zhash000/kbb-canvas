@@ -83,6 +83,7 @@ export function compileDag(nodes: WorkflowNodeInput[]): RenderStep[] {
 export class WorkflowService {
   private workflows = new Map<string, WorkflowRecord>();
   private jobs = new Map<string, RenderJobRecord>();
+  private jobsByIdempotency = new Map<string, RenderJobRecord>();
   private modelCategoryById = new Map<string, ModelCategory>();
 
   constructor() {
@@ -109,6 +110,10 @@ export class WorkflowService {
 
   getWorkflow(id: string): WorkflowRecord | null {
     return this.workflows.get(id) ?? null;
+  }
+
+  getRenderJobByIdempotency(userId: string, idempotencyKey: string): RenderJobRecord | null {
+    return this.jobsByIdempotency.get(`${userId}:${idempotencyKey}`) ?? null;
   }
 
   validateWorkflow(id: string): { ok: boolean; errors: string[] } {
@@ -146,7 +151,13 @@ export class WorkflowService {
     workflowId: string;
     userId: string;
     reservationId?: string;
+    idempotencyKey?: string;
   }): RenderJobRecord {
+    if (input.idempotencyKey) {
+      const existing = this.jobsByIdempotency.get(`${input.userId}:${input.idempotencyKey}`);
+      if (existing) return existing;
+    }
+
     const workflow = this.workflows.get(input.workflowId);
     if (!workflow) {
       throw new Error("workflow_not_found");
@@ -164,6 +175,9 @@ export class WorkflowService {
     };
 
     this.jobs.set(job.id, job);
+    if (input.idempotencyKey) {
+      this.jobsByIdempotency.set(`${input.userId}:${input.idempotencyKey}`, job);
+    }
     return job;
   }
 }

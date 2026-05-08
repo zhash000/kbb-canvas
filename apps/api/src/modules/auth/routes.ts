@@ -1,10 +1,10 @@
 ﻿import type { FastifyPluginAsync } from "fastify";
 
-import { InMemoryStore } from "../common/store.js";
+import type { Store } from "../common/store.types.js";
 
 declare module "fastify" {
   interface FastifyInstance {
-    store: InMemoryStore;
+    store: Store;
   }
 }
 
@@ -16,7 +16,7 @@ interface RegisterBody {
 export const authRoutes: FastifyPluginAsync = async (app) => {
   app.post<{ Body: RegisterBody }>("/auth/register", async (request, reply) => {
     try {
-      const user = app.store.register(request.body.email, request.body.password);
+      const user = await app.store.register(request.body.email, request.body.password);
       return { userId: user.id, email: user.email };
     } catch (error) {
       if (error instanceof Error && error.message === "email_exists") {
@@ -28,7 +28,7 @@ export const authRoutes: FastifyPluginAsync = async (app) => {
 
   app.post<{ Body: RegisterBody }>("/auth/login", async (request, reply) => {
     try {
-      const user = app.store.login(request.body.email, request.body.password);
+      const user = await app.store.login(request.body.email, request.body.password);
       return { userId: user.id, email: user.email };
     } catch (error) {
       if (error instanceof Error && error.message === "invalid_credentials") {

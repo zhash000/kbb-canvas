@@ -1,10 +1,11 @@
-﻿import type { FastifyPluginAsync } from "fastify";
+import type { FastifyPluginAsync } from "fastify";
 
-import { InMemoryStore } from "../common/store.js";
+import { buildRequestHash } from "../common/idempotency.js";
+import type { Store } from "../common/store.types.js";
 
 declare module "fastify" {
   interface FastifyInstance {
-    store: InMemoryStore;
+    store: Store;
   }
 }
 
@@ -25,6 +26,11 @@ interface ReleaseBody {
   reservationId: string;
 }
 
+function getIdempotencyKey(raw: string | string[] | undefined): string | undefined {
+  if (!raw) return undefined;
+  return Array.isArray(raw) ? raw[0] : raw;
+}
+
 function mapDomainError(error: unknown): { statusCode: number; message: string } | null {
   if (!(error instanceof Error)) return null;
 
@@ -37,6 +43,8 @@ function mapDomainError(error: unknown): { statusCode: number; message: string }
       return { statusCode: 404, message: "reservation not found" };
     case "settle_amount_exceeds_reservation":
       return { statusCode: 409, message: "settle amount exceeds reservation" };
+    case "idempotency_key_reused_with_different_payload":
+      return { statusCode: 409, message: "idempotency key reused with different payload" };
     default:
       return null;
   }
@@ -44,16 +52,22 @@ function mapDomainError(error: unknown): { statusCode: number; message: string }
 
 export const creditsRoutes: FastifyPluginAsync = async (app) => {
   app.get<{ Querystring: { userId: string } }>("/credits/balance", async (request) => {
-    return app.store.getBalance(request.query.userId);
+    return await app.store.getBalance(request.query.userId);
   });
 
   app.get<{ Querystring: { userId: string } }>("/credits/ledger", async (request) => {
-    return { entries: app.store.getLedger(request.query.userId) };
+    return { entries: await app.store.getLedger(request.query.userId) };
   });
 
   app.post<{ Body: ReserveBody }>("/credits/reserve", async (request, reply) => {
     try {
-      return app.store.reserve(request.body.userId, request.body.amount, request.body.refJobId);
+      return await app.store.reserve(
+        request.body.userId,
+        request.body.amount,
+        request.body.refJobId,
+        getIdempotencyKey(request.headers["idempotency-key"]),
+        buildRequestHash(request.body)
+      );
     } catch (error) {
       const mapped = mapDomainError(error);
       if (mapped) return reply.code(mapped.statusCode).send({ message: mapped.message });
@@ -63,10 +77,12 @@ export const creditsRoutes: FastifyPluginAsync = async (app) => {
 
   app.post<{ Body: SettleBody }>("/credits/settle", async (request, reply) => {
     try {
-      return app.store.settle(
+      return await app.store.settle(
         request.body.userId,
         request.body.reservationId,
-        request.body.amount
+        request.body.amount,
+        getIdempotencyKey(request.headers["idempotency-key"]),
+        buildRequestHash(request.body)
       );
     } catch (error) {
       const mapped = mapDomainError(error);
@@ -77,7 +93,12 @@ export const creditsRoutes: FastifyPluginAsync = async (app) => {
 
   app.post<{ Body: ReleaseBody }>("/credits/release", async (request, reply) => {
     try {
-      return app.store.release(request.body.userId, request.body.reservationId);
+      return await app.store.release(
+        request.body.userId,
+        request.body.reservationId,
+        getIdempotencyKey(request.headers["idempotency-key"]),
+        buildRequestHash(request.body)
+      );
     } catch (error) {
       const mapped = mapDomainError(error);
       if (mapped) return reply.code(mapped.statusCode).send({ message: mapped.message });
