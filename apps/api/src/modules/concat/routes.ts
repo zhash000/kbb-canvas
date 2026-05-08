@@ -1,6 +1,6 @@
 ﻿import type { FastifyPluginAsync } from "fastify";
 
-import { concatClips } from "@app/worker";
+import { concatClips } from "./processor.js";
 
 interface ConcatBody {
   tenantId: string;
@@ -14,8 +14,7 @@ interface ConcatBody {
 export const concatRoutes: FastifyPluginAsync = async (app) => {
   app.post<{ Params: { jobId: string }; Body: ConcatBody }>(
     "/render-jobs/:jobId/concat",
-    async (request, reply) => {
-      // MVP: no auth middleware yet; caller provides userId.
+    async (request) => {
       const res = await concatClips({
         tenantId: request.body.tenantId,
         projectId: request.body.projectId,
