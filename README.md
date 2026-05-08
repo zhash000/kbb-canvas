@@ -1,4 +1,4 @@
-﻿# multimodal-video-platform (monorepo)
+# multimodal-video-platform (monorepo)
 
 This repository bootstrap uses **npm workspaces** (Node 20+).
 
