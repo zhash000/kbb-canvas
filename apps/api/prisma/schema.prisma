@@ -1,0 +1,59 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String          @id @default(cuid())
+  email       String          @unique
+  password    String
+  memberships Membership[]
+  ledgers     CreditLedger[]
+  reservations CreditReservation[]
+  createdAt   DateTime        @default(now())
+}
+
+model Membership {
+  id        String   @id @default(cuid())
+  userId    String
+  plan      String
+  expiresAt DateTime?
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model CreditLedger {
+  id            String   @id @default(cuid())
+  userId        String
+  type          String
+  amount        Int
+  reservationId String?
+  refJobId      String?
+  createdAt     DateTime @default(now())
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model CreditReservation {
+  id        String   @id @default(cuid())
+  userId    String
+  amount    Int
+  refJobId  String?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model IdempotencyRecord {
+  id           String   @id @default(cuid())
+  scope        String
+  userId       String
+  key          String
+  requestHash  String
+  responseJson Json
+  createdAt    DateTime @default(now())
+
+  @@unique([scope, userId, key])
+}

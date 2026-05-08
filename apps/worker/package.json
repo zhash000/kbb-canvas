@@ -1,0 +1,29 @@
+﻿{
+  "name": "@app/worker",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "node --watch src/index.ts",
+    "test": "vitest run",
+    "lint": "echo \"[@app/worker] lint placeholder\""
+  },
+  "dependencies": {
+    "bullmq": "^5.61.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.29",
+    "typescript": "~5.7.3",
+    "vitest": "^3.2.4"
+  }
+}
